@@ -13,10 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
-/**
- *
- * @author MarcoSilva
- */
+
 public class PDU_MA {
     
     private LocalTime timestamp;

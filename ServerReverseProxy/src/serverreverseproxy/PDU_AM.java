@@ -15,10 +15,7 @@ import java.util.logging.Logger;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 import java.lang.Float;
 
-/**
- *
- * @author MarcoSilva
- */
+
 public class PDU_AM {
     
     private byte[] IP_origem;
