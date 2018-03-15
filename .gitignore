@@ -1,3 +1,7 @@
 .DS_Store
 /ServerProxyInv/nbproject/private/
 /ServerReverseProxy/nbproject/private/
+ServerReverseProxy/.idea/
+ServerReverseProxy/ServerReverseProxy.iml
+ServerReverseProxy/out/
+
