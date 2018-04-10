@@ -5,6 +5,7 @@
  */
 package serverreverseproxy;
 
+import java.io.Serializable;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 
-public class PDU_MA {
+public class PDU_MA implements Serializable {
     
     private LocalTime timestamp;
     /* chave para autenticação e controlo de erros de mensagens */

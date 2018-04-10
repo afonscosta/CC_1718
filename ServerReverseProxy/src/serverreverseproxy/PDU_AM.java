@@ -5,6 +5,7 @@
  */
 package serverreverseproxy;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +17,7 @@ import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 import java.lang.Float;
 
 
-public class PDU_AM {
+public class PDU_AM implements Serializable {
     
     private byte[] IP_origem;
     private float ram_usage;
