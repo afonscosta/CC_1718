@@ -3,6 +3,9 @@ package serverreverseproxy;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+//import com.sun.management.*; daria alternativas para métodos para encontrar o cpu e ram
+import java.lang.management.*;
+import java.time.LocalTime;
 
 public class AgenteUDP {
     public static void main(String args[]) throws Exception
@@ -23,13 +26,14 @@ public class AgenteUDP {
         byte[] buf = new byte[1024];
         DatagramPacket recv = new DatagramPacket(buf, buf.length);
 
-        //Recebe o pedido multicast
-        s.receive(recv);
-        System.out.println("Received data from: " + recv.getAddress().toString() +
-                ":" + recv.getPort() + " with length: " +
-                recv.getLength());
-        String receiveMsg = new String(recv.getData(),0,1024);
-        System.out.println("Data: " + receiveMsg);
+        while(true) {
+            //Recebe o pedido multicast
+            s.receive(recv);
+            System.out.println("Received data from: " + recv.getAddress().toString() +
+                    ":" + recv.getPort() + " with length: " +
+                    recv.getLength());
+            String receiveMsg = new String(recv.getData(), 0, 1024);
+            System.out.println("Data: " + receiveMsg);
 
 
         /*
@@ -43,10 +47,21 @@ public class AgenteUDP {
         listeners with a socket bound to the port. With my test setup, the last
         socket to bind to the port receives the unicast traffic.
         */
-        String sendData = "Resposta em unicast";
-        DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
-        s.send(sendPacket);
+            //RAM usage
+            long maxRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
+            long usedRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed();
+            float ram = usedRam / maxRam;
 
+            //CPU usage
+            java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
+            float cpu = (float) o.getSystemLoadAverage();
+
+            PDU_AM resp = new PDU_AM(group.getAddress(), ram, cpu, LocalTime.now(), key);
+
+            String sendData = "Resposta em unicast";
+            DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
+            s.send(sendPacket);
+        }
         //Sai do grupo
         s.leaveGroup(group);
 
