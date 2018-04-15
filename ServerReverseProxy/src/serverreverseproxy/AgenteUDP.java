@@ -6,8 +6,34 @@ import java.net.MulticastSocket;
 //import com.sun.management.*; daria alternativas para métodos para encontrar o cpu e ram
 import java.lang.management.*;
 import java.time.LocalTime;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Random;
 
 public class AgenteUDP {
+    // toByteArray and toObject are taken from: http://www.java2s.com/Code/Java/File-Input-Output/Convertobjecttobytearrayandconvertbytearraytoobject.htm
+    public static byte[] toByteArray(Object obj) throws IOException {
+        byte[] bytes = null;
+        ByteArrayOutputStream bos = null;
+        ObjectOutputStream oos = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(obj);
+            oos.flush();
+            bytes = bos.toByteArray();
+        } finally {
+            if (oos != null) {
+                oos.close();
+            }
+            if (bos != null) {
+                bos.close();
+            }
+        }
+        return bytes;
+    }
+
     public static void main(String args[]) throws Exception
     {
         //Porta usada
@@ -26,7 +52,9 @@ public class AgenteUDP {
         byte[] buf = new byte[1024];
         DatagramPacket recv = new DatagramPacket(buf, buf.length);
 
-        while(true) {
+        Random rand = new Random();
+
+        //while(true) {
             //Recebe o pedido multicast
             s.receive(recv);
             System.out.println("Received data from: " + recv.getAddress().toString() +
@@ -35,7 +63,8 @@ public class AgenteUDP {
             String receiveMsg = new String(recv.getData(), 0, 1024);
             System.out.println("Data: " + receiveMsg);
 
-
+            //espera entre 0 e 10 ms para responder
+            Thread.sleep(rand.nextInt(11));
         /*
             Envia resposta em unicast.
 
@@ -56,16 +85,30 @@ public class AgenteUDP {
             java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
             float cpu = (float) o.getSystemLoadAverage();
 
-            PDU_AM resp = new PDU_AM(group.getAddress(), ram, cpu, LocalTime.now(), key);
+            //timestamp
+            LocalTime timestamp = LocalTime.now();
 
-            String sendData = "Resposta em unicast";
-            DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
+            byte[] address = group.getAddress();
+
+            //key
+            String key = address.toString() + Float.toString(ram) + Float.toString(cpu) + timestamp.toString();
+
+            PDU_AM resp = new PDU_AM(address, ram, cpu, timestamp, key);
+            byte[] b = toByteArray(resp);
+
+            //String sendData = "Resposta em unicast";
+            //DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
+            //s.send(sendPacket);
+            DatagramPacket sendPacket = new DatagramPacket(b, b.length, recv.getAddress(), 8888);
             s.send(sendPacket);
+            byte[] receiveData = new byte[1024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            s.receive(receivePacket);
         }
         //Sai do grupo
-        s.leaveGroup(group);
+        //s.leaveGroup(group);
 
         //Fecha o socket multicast
-        s.close();
-    }
+        //  s.close();
+    //}
 }

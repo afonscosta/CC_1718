@@ -16,7 +16,7 @@ import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 import java.lang.Float;
 
 
-public class PDU_AM {
+public class PDU_AM implements java.io.Serializable{
     
     private byte[] IP_origem;
     private float ram_usage;
