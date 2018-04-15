@@ -43,10 +43,14 @@ public class AgenteUDP {
         listeners with a socket bound to the port. With my test setup, the last
         socket to bind to the port receives the unicast traffic.
         */
-        String sendData = "Resposta em unicast";
-        DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
-        s.send(sendPacket);
-
+        int i = 0;
+        while (i < 1001000000) {
+            String sendData = "Resposta em unicast";
+            DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
+            s.send(sendPacket);
+            System.out.println("Enviei resposta de volta!!!");
+            i++;
+        }
         //Sai do grupo
         s.leaveGroup(group);
 

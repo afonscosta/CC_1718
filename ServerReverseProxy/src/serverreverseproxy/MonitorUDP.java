@@ -2,6 +2,8 @@ package serverreverseproxy;
 
 import java.net.*;
 
+import static java.lang.Thread.sleep;
+
 public class MonitorUDP {
     public static void main(String args[]) throws Exception
     {
@@ -28,6 +30,7 @@ public class MonitorUDP {
         {
             //Manda o pedido em multicast
             s.send(sendDataMulticast);
+            sleep(3000);
 
             /*
             Escuta possíveis respostas em unicast.
@@ -36,6 +39,7 @@ public class MonitorUDP {
             */
             s.receive(receivePacket);
 
+            System.out.println("Vou imprimir!!!");
             //Recebeu uma resposta em unicast.
             System.out.println("Received data from: " + receivePacket.getAddress().toString() +
                     ":" + receivePacket.getPort() + " with length: " +
