@@ -47,6 +47,7 @@ public class AgenteUDP {
         while (i < 1001000000) {
             String sendData = "Resposta em unicast";
             DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
+            //acho que o problema está aqui, estamos a enviar o suposto unicast para o multicast mas o monitor não fez join para o multicast
             s.send(sendPacket);
             System.out.println("Enviei resposta de volta!!!");
             i++;
