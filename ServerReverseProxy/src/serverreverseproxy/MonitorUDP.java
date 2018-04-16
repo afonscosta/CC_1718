@@ -1,18 +1,58 @@
 package serverreverseproxy;
 
+import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 import static java.lang.Thread.sleep;
 
 public class MonitorUDP {
+
+    public static byte[] serialize(PDU_MA packet) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out;
+        try {
+            out = new ObjectOutputStream(bos);
+            out.writeObject(packet);
+            out.flush();
+            return bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static Object objectFromBytes(byte[] packet_bytes) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(packet_bytes);
+        try (ObjectInput in = new ObjectInputStream(bis)) {
+            return in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void main(String args[]) throws Exception
     {
-        //Pacote usado para receber as respostas em unicast ao pedido multicast
-        byte[] receiveData = new byte[1024];
-        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        String ipIN;
+        String ramIN;
+        String cpuIN;
+        String timeIN;
+        String hmacIN;
+        String hmac;
 
-        //Pedido em multicast
-        String msg = "Request em multicast";
+        //Pacote usado para receber as respostas em unicast ao pedido multicast
+        byte[] receiveData = new byte[4096];
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
         //Porta usada
         int portMulticast = 8888;
@@ -23,35 +63,63 @@ public class MonitorUDP {
         //Socket para o multicast
         MulticastSocket s = new MulticastSocket(portMulticast);
 
-        //Pacote com o pedido para ser enviado em multicast
-        DatagramPacket sendDataMulticast = new DatagramPacket(msg.getBytes(), msg.length(), group, portMulticast);
+        //Pedido em multicast
+        PDU_MA pduEnv = new PDU_MA("key");
+        byte[] pduEnvSerialized = serialize(pduEnv);
+        if (pduEnvSerialized != null) {
 
-        while(true)
-        {
-            //Manda o pedido em multicast
-            s.send(sendDataMulticast);
-            sleep(3000);
+            //Pacote com o pedido para ser enviado em multicast
+            DatagramPacket sendDataMulticast = new DatagramPacket(
+                    pduEnvSerialized,
+                    pduEnvSerialized.length,
+                    group,
+                    portMulticast
+            );
+
+            while(true)
+            {
+                //Manda o pedido em multicast
+                s.send(sendDataMulticast);
 
             /*
             Escuta possíveis respostas em unicast.
             MulticastSocket é uma subclasse de DatagramSocket e como tal tem a capacidade de
             receber pacotes unicast também.
             */
-            s.receive(receivePacket);
+                s.receive(receivePacket);
+                PDU_AM pduReceived = (PDU_AM) objectFromBytes(receivePacket.getData());
 
-            System.out.println("Vou imprimir!!!");
-            //Recebeu uma resposta em unicast.
-            System.out.println("Received data from: " + receivePacket.getAddress().toString() +
-                    ":" + receivePacket.getPort() + " with length: " +
-                    receivePacket.getLength());
-            String receiveMsg = new String(receivePacket.getData(),0,1024);
-            System.out.println("Data: " + receiveMsg);
+                //Recebeu uma resposta em unicast.
+                System.out.println(
+                        "Received data from: " + receivePacket.getAddress().toString() +
+                                ":" + receivePacket.getPort() + " with length: " +
+                                receivePacket.getLength()
+                );
 
-            // And when we have finished sending data close the socket
+                if (pduReceived != null) {
+                    //ipIN = Arrays.toString(pduReceived.getIP_origem());
+                    ipIN = new String (pduReceived.getIP_origem(), StandardCharsets.UTF_8);
+                    ramIN    = String.valueOf(pduReceived.getRam_usage());
+                    cpuIN    = String.valueOf(pduReceived.getCpu_usage());
+                    //timeIN   = String.valueOf(pduReceived.getTimestamp());
+                    timeIN = pduReceived.getTimestamp().toString(); //Tentativa de melhorar
+                    hmacIN   = String.valueOf(pduReceived.getHMAC_RESULT());
+                    hmac     = calculateRFC2104HMAC(ipIN+timeIN+ramIN+cpuIN, "key");
+                    System.out.println(
+                            "IP origem: "               + ipIN                + "\n" +
+                                    "RAM: "                     + ramIN               + "\n" +
+                                    "CPU: "                     + cpuIN               + "\n" +
+                                    "Timestamp: "               + timeIN              + "\n" +
+                                    "HMAC result received: "    + hmacIN              + "\n" +
+                                    "HMAC result calculated: "  + hmac                + "\n" +
+                                    "HMAC iguais? "             + hmacIN.equals(hmac) + "\n"
+                    );
+                }
+
+
+                // And when we have finished sending data close the socket
 //            s.close();
+            }
         }
-
-
-
     }
 }
