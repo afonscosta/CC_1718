@@ -90,7 +90,7 @@ public class AgenteUDP {
                 System.out.println("Timestamp: " + reqLT + "\n"
                                     + "HMAC result received: " + HMACResult + "\n"
                                     + "HMAC calculated: " + HMACCalc + "\n"
-                                    + "HMAC's match? " + HMACResult.equals(HMACCalc) + "\n\n");
+                                    + "HMAC's match? " + HMACResult.equals(HMACCalc) + "\n");
             }
 
 

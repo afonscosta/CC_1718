@@ -2,6 +2,7 @@ package serverreverseproxy;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
@@ -95,11 +96,12 @@ public class MonitorUDP {
                 );
 
                 if (pduReceived != null) {
-                    ipIN = Arrays.toString(pduReceived.getIP_origem());
+                    //ipIN = Arrays.toString(pduReceived.getIP_origem());
+                    ipIN = new String (pduReceived.getIP_origem(), StandardCharsets.UTF_8);
                     ramIN    = String.valueOf(pduReceived.getRam_usage());
                     cpuIN    = String.valueOf(pduReceived.getCpu_usage());
-                    timeIN   = String.valueOf(pduReceived.getTimestamp());
-                    //timeIN = pduReceived.getTimestamp().toString(); Tentativa de melhorar
+                    //timeIN   = String.valueOf(pduReceived.getTimestamp());
+                    timeIN = pduReceived.getTimestamp().toString(); //Tentativa de melhorar
                     hmacIN   = String.valueOf(pduReceived.getHMAC_RESULT());
                     hmac     = calculateRFC2104HMAC(ipIN+timeIN+ramIN+cpuIN, "key");
                     System.out.println(
