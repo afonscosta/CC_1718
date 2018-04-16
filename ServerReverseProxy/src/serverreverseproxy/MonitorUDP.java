@@ -99,6 +99,7 @@ public class MonitorUDP {
                     ramIN    = String.valueOf(pduReceived.getRam_usage());
                     cpuIN    = String.valueOf(pduReceived.getCpu_usage());
                     timeIN   = String.valueOf(pduReceived.getTimestamp());
+                    //timeIN = pduReceived.getTimestamp().toString(); Tentativa de melhorar
                     hmacIN   = String.valueOf(pduReceived.getHMAC_RESULT());
                     hmac     = calculateRFC2104HMAC(ipIN+timeIN+ramIN+cpuIN, "key");
                     System.out.println(
