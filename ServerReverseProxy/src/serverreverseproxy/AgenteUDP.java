@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-//import com.sun.management.*; daria alternativas para métodos para encontrar o cpu e ram
+import com.sun.management.*; //daria alternativas para métodos para encontrar o cpu e ram
 import java.lang.management.*;
 import java.time.LocalTime;
 import java.util.Random;
@@ -13,7 +13,7 @@ import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 public class AgenteUDP {
 
-    public static byte[] serialize(PDU_AM packet) {
+    private static byte[] serialize(PDU_AM packet) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out;
         try {
@@ -33,7 +33,7 @@ public class AgenteUDP {
         return null;
     }
 
-    public static Object objectFromBytes(byte[] packet_bytes) {
+    private static Object objectFromBytes(byte[] packet_bytes) {
         ByteArrayInputStream bis = new ByteArrayInputStream(packet_bytes);
         try (ObjectInput in = new ObjectInputStream(bis)) {
             return in.readObject();
@@ -79,8 +79,6 @@ public class AgenteUDP {
             System.out.println("Received data from: " + recv.getAddress().toString() +
                     ":" + recv.getPort() + " with length: " +
                     recv.getLength());
-            String receiveMsg = new String(recv.getData(), 0, 1024);
-            //System.out.println("Data: " + receiveMsg);
 
 
             if(request != null){
@@ -108,13 +106,19 @@ public class AgenteUDP {
         socket to bind to the port receives the unicast traffic.
         */
             //RAM usage
-            long maxRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
+            /*long maxRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
             long usedRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed();
-            float ram = usedRam / maxRam;
+            float ram = usedRam / maxRam;*/
+            Runtime obj = Runtime.getRuntime();
+            float freeRAM = obj.freeMemory(); //System.out.println("FreeRAM = " + freeRAM);
+            float maxRAM = obj.maxMemory(); //System.out.println("MaxRAM = " + maxRAM);
+            float ram = freeRAM/maxRAM; //System.out.println("RAM = " + ram);
 
             //CPU usage
-            java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
-            float cpu = (float) o.getSystemLoadAverage();
+            //java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
+            //float cpu = (float) o.getSystemLoadAverage() / o.getAvailableProcessors();
+            com.sun.management.OperatingSystemMXBean o = ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);
+            float cpu = (float) o.getProcessCpuLoad();
 
             //timestamp
             LocalTime timestamp = LocalTime.now();
