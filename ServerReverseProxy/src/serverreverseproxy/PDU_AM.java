@@ -6,6 +6,8 @@
 package serverreverseproxy;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -32,13 +34,15 @@ public class PDU_AM implements Serializable {
         this.cpu_usage = cpu_usage;
         this.timestamp = timestamp;
         try {
-            String ip = new String (this.IP_origem, StandardCharsets.UTF_8);
+            String ip = InetAddress.getByAddress(this.IP_origem).getHostAddress();
             String ram = Float.toString(this.ram_usage);
             String cpu = Float.toString(this.cpu_usage);
             String data = ip + this.timestamp.toString() + ram + cpu;
             this.HMAC_RESULT = calculateRFC2104HMAC(data , key);
         } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
             Logger.getLogger(PDU_MA.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
     }
     
