@@ -89,32 +89,34 @@ public class MonitorUDP {
 //                s.receive(receivePacket);
 
                 try {
-                    s.receive(receivePacket);
-                    PDU_AM pduReceived = (PDU_AM) objectFromBytes(receivePacket.getData());
+                    while(true) {
+                        s.receive(receivePacket);
+                        PDU_AM pduReceived = (PDU_AM) objectFromBytes(receivePacket.getData());
 
-                    //Recebeu uma resposta em unicast.
-                    System.out.println(
-                            "Received data from: " + receivePacket.getAddress().toString() +
-                                    ":" + receivePacket.getPort() + " with length: " +
-                                    receivePacket.getLength()
-                    );
-
-                    if (pduReceived != null) {
-                        ipIN = InetAddress.getByAddress(pduReceived.getIP_origem()).getHostAddress();
-                        ramIN    = String.valueOf(pduReceived.getRam_usage());
-                        cpuIN    = String.valueOf(pduReceived.getCpu_usage());
-                        timeIN = pduReceived.getTimestamp().toString(); //Tentativa de melhorar
-                        hmacIN   = String.valueOf(pduReceived.getHMAC_RESULT());
-                        hmac     = calculateRFC2104HMAC(ipIN+timeIN+ramIN+cpuIN, "key");
+                        //Recebeu uma resposta em unicast.
                         System.out.println(
-                                "IP origem: "               + ipIN                + "\n" +
-                                "RAM: "                     + ramIN               + "\n" +
-                                "CPU: "                     + cpuIN               + "\n" +
-                                "Timestamp: "               + timeIN              + "\n" +
-                                "HMAC result received: "    + hmacIN              + "\n" +
-                                "HMAC result calculated: "  + hmac                + "\n" +
-                                "HMAC iguais? "             + hmacIN.equals(hmac) + "\n"
+                                "Received data from: " + receivePacket.getAddress().toString() +
+                                        ":" + receivePacket.getPort() + " with length: " +
+                                        receivePacket.getLength()
                         );
+
+                        if (pduReceived != null) {
+                            ipIN = InetAddress.getByAddress(pduReceived.getIP_origem()).getHostAddress();
+                            ramIN = String.valueOf(pduReceived.getRam_usage());
+                            cpuIN = String.valueOf(pduReceived.getCpu_usage());
+                            timeIN = pduReceived.getTimestamp().toString(); //Tentativa de melhorar
+                            hmacIN = String.valueOf(pduReceived.getHMAC_RESULT());
+                            hmac = calculateRFC2104HMAC(ipIN + timeIN + ramIN + cpuIN, "key");
+                            System.out.println(
+                                    "IP origem: " + ipIN + "\n" +
+                                            "RAM: " + ramIN + "\n" +
+                                            "CPU: " + cpuIN + "\n" +
+                                            "Timestamp: " + timeIN + "\n" +
+                                            "HMAC result received: " + hmacIN + "\n" +
+                                            "HMAC result calculated: " + hmac + "\n" +
+                                            "HMAC iguais? " + hmacIN.equals(hmac) + "\n"
+                            );
+                        }
                     }
                 }
                 catch (SocketTimeoutException e) {
