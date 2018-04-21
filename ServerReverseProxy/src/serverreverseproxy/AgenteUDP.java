@@ -9,40 +9,10 @@ import java.lang.management.*;
 import java.time.LocalTime;
 import java.util.Random;
 
+import static serverreverseproxy.Converter.*;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 public class AgenteUDP {
-
-    private static byte[] serialize(PDU_AM packet) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out;
-        try {
-            out = new ObjectOutputStream(bos);
-            out.writeObject(packet);
-            out.flush();
-            return bos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    private static Object objectFromBytes(byte[] packet_bytes) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(packet_bytes);
-        try (ObjectInput in = new ObjectInputStream(bis)) {
-            return in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
     public static void main(String args[]) throws Exception
     {
@@ -126,7 +96,7 @@ public class AgenteUDP {
             //String address = new String(group.getAddress());
 
 
-            PDU_AM resp = new PDU_AM(group.getAddress(), ram, cpu, timestamp, key);
+            PDU_AM resp = new PDU_AM(ram, cpu, timestamp, key);
             byte[] b = serialize(resp);
 
             //String sendData = "Resposta em unicast";
