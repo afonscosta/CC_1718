@@ -9,40 +9,10 @@ import java.lang.management.*;
 import java.time.LocalTime;
 import java.util.Random;
 
+import static serverreverseproxy.Converter.*;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 public class AgenteUDP {
-
-    private static byte[] serialize(PDU_AM packet) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out;
-        try {
-            out = new ObjectOutputStream(bos);
-            out.writeObject(packet);
-            out.flush();
-            return bos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    private static Object objectFromBytes(byte[] packet_bytes) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(packet_bytes);
-        try (ObjectInput in = new ObjectInputStream(bis)) {
-            return in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
     public static void main(String args[]) throws Exception
     {
@@ -54,6 +24,7 @@ public class AgenteUDP {
 
         //Socket para o multicast
         MulticastSocket s = new MulticastSocket(port);
+        s.setTimeToLive(7);
 
         //Junta-se ao grupo multicast para receber pacotes
         s.joinGroup(group);
@@ -95,18 +66,17 @@ public class AgenteUDP {
 
                 //espera entre 0 e 10 ms para responder
                 Thread.sleep(rand.nextInt(11));
-                /*
-                    Envia resposta em unicast.
+            /*
+                Envia resposta em unicast.
 
-                    Since one can send unicast packets using the same MulticastSocket
-                instance as for ones multicasts, it makes sense to mention how unicasts
-                are handled when there is more than one listener, which can only be when
-                they are all on the same machine.
-                    Unicast traffic sent to the port will be received by only one of the
-                listeners with a socket bound to the port. With my test setup, the last
-                socket to bind to the port receives the unicast traffic.
-                */
-
+                Since one can send unicast packets using the same MulticastSocket
+            instance as for ones multicasts, it makes sense to mention how unicasts
+            are handled when there is more than one listener, which can only be when
+            they are all on the same machine.
+                Unicast traffic sent to the port will be received by only one of the
+            listeners with a socket bound to the port. With my test setup, the last
+            socket to bind to the port receives the unicast traffic.
+            */
                 //RAM usage
                 /*long maxRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
                 long usedRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed();
@@ -114,7 +84,7 @@ public class AgenteUDP {
                 Runtime obj = Runtime.getRuntime();
                 float freeRAM = obj.freeMemory(); //System.out.println("FreeRAM = " + freeRAM);
                 float maxRAM = obj.maxMemory(); //System.out.println("MaxRAM = " + maxRAM);
-                float ram = freeRAM / maxRAM; //System.out.println("RAM = " + ram);
+                float ram = freeRAM/maxRAM; //System.out.println("RAM = " + ram);
 
                 //CPU usage
                 //java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
@@ -128,7 +98,7 @@ public class AgenteUDP {
                 //String address = new String(group.getAddress());
 
 
-                PDU_AM resp = new PDU_AM(group.getAddress(), ram, cpu, timestamp, key);
+                PDU_AM resp = new PDU_AM(ram, cpu, timestamp, key);
                 byte[] b = serialize(resp);
 
                 //String sendData = "Resposta em unicast";
