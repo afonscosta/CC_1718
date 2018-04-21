@@ -24,6 +24,7 @@ public class AgenteUDP {
 
         //Socket para o multicast
         MulticastSocket s = new MulticastSocket(port);
+        s.setTimeToLive(7);
 
         //Junta-se ao grupo multicast para receber pacotes
         s.joinGroup(group);

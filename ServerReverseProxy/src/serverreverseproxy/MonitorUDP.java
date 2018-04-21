@@ -34,6 +34,7 @@ public class MonitorUDP {
         //Socket para o multicast
         MulticastSocket s = new MulticastSocket(portMulticast);
         s.setSoTimeout(5000);   // set the timeout in millisecounds.
+        s.setTimeToLive(7);
 
         //Pedido em multicast
 
