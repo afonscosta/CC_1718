@@ -42,72 +42,72 @@ public class AgenteUDP {
 
             //Recebe o pedido multicast
             s.receive(recv);
-
-            //Descodifica os bytes para PDU_MA
-            PDU_MA request = (PDU_MA) objectFromBytes(recv.getData());
-
+            
             System.out.println("Received data from: " + recv.getAddress().toString() +
-                    ":" + recv.getPort() + " with length: " +
-                    recv.getLength());
+                               ":"                    + recv.getPort() + 
+                               " with length: "       + recv.getLength());
+
+            if (objectFromBytes(recv.getData()).getClass().getSimpleName().equals("PDU_MA")){
+                //Descodifica os bytes para PDU_MA
+                PDU_MA request = (PDU_MA) objectFromBytes(recv.getData());
+
+                if (request != null) {
+                    LocalTime reqLT = request.getTimestamp();
+                    String HMACResult = request.getHMAC_RESULT();
+                    String HMACCalc = calculateRFC2104HMAC(reqLT.toString(), key);
+                    System.out.println("Timestamp: " + reqLT + "\n"
+                            + "HMAC result received: " + HMACResult + "\n"
+                            + "HMAC calculated: " + HMACCalc + "\n"
+                            + "HMAC's match? " + HMACResult.equals(HMACCalc) + "\n");
+                }
 
 
-            if(request != null){
-                LocalTime reqLT = request.getTimestamp();
-                String HMACResult = request. getHMAC_RESULT();
-                String HMACCalc = calculateRFC2104HMAC(reqLT.toString(), key);
-                System.out.println("Timestamp: " + reqLT + "\n"
-                                    + "HMAC result received: " + HMACResult + "\n"
-                                    + "HMAC calculated: " + HMACCalc + "\n"
-                                    + "HMAC's match? " + HMACResult.equals(HMACCalc) + "\n");
+                //espera entre 0 e 10 ms para responder
+                Thread.sleep(rand.nextInt(11));
+            /*
+                Envia resposta em unicast.
+
+                Since one can send unicast packets using the same MulticastSocket
+            instance as for ones multicasts, it makes sense to mention how unicasts
+            are handled when there is more than one listener, which can only be when
+            they are all on the same machine.
+                Unicast traffic sent to the port will be received by only one of the
+            listeners with a socket bound to the port. With my test setup, the last
+            socket to bind to the port receives the unicast traffic.
+            */
+                //RAM usage
+                /*long maxRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
+                long usedRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed();
+                float ram = usedRam / maxRam;*/
+                Runtime obj = Runtime.getRuntime();
+                float freeRAM = obj.freeMemory(); //System.out.println("FreeRAM = " + freeRAM);
+                float maxRAM = obj.maxMemory(); //System.out.println("MaxRAM = " + maxRAM);
+                float ram = freeRAM/maxRAM; //System.out.println("RAM = " + ram);
+
+                //CPU usage
+                //java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
+                //float cpu = (float) o.getSystemLoadAverage() / o.getAvailableProcessors();
+                com.sun.management.OperatingSystemMXBean o = ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);
+                float cpu = (float) o.getProcessCpuLoad();
+
+                //timestamp
+                LocalTime timestamp = LocalTime.now();
+
+                //String address = new String(group.getAddress());
+
+
+                PDU_AM resp = new PDU_AM(ram, cpu, timestamp, key);
+                byte[] b = serialize(resp);
+
+                //String sendData = "Resposta em unicast";
+                //DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
+                //s.send(sendPacket);
+                DatagramPacket sendPacket = new DatagramPacket(b, b.length, recv.getAddress(), 8888);
+                s.send(sendPacket);
+                //byte[] receiveData = new byte[1024];
+                //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                //s.receive(receivePacket);
             }
-
-
-            //espera entre 0 e 10 ms para responder
-            Thread.sleep(rand.nextInt(11));
-        /*
-            Envia resposta em unicast.
-
-            Since one can send unicast packets using the same MulticastSocket
-        instance as for ones multicasts, it makes sense to mention how unicasts
-        are handled when there is more than one listener, which can only be when
-        they are all on the same machine.
-            Unicast traffic sent to the port will be received by only one of the
-        listeners with a socket bound to the port. With my test setup, the last
-        socket to bind to the port receives the unicast traffic.
-        */
-            //RAM usage
-            /*long maxRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
-            long usedRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed();
-            float ram = usedRam / maxRam;*/
-            Runtime obj = Runtime.getRuntime();
-            float freeRAM = obj.freeMemory(); //System.out.println("FreeRAM = " + freeRAM);
-            float maxRAM = obj.maxMemory(); //System.out.println("MaxRAM = " + maxRAM);
-            float ram = freeRAM/maxRAM; //System.out.println("RAM = " + ram);
-
-            //CPU usage
-            //java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
-            //float cpu = (float) o.getSystemLoadAverage() / o.getAvailableProcessors();
-            com.sun.management.OperatingSystemMXBean o = ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);
-            float cpu = (float) o.getProcessCpuLoad();
-
-            //timestamp
-            LocalTime timestamp = LocalTime.now();
-
-            //String address = new String(group.getAddress());
-
-
-            PDU_AM resp = new PDU_AM(ram, cpu, timestamp, key);
-            byte[] b = serialize(resp);
-
-            //String sendData = "Resposta em unicast";
-            //DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
-            //s.send(sendPacket);
-            DatagramPacket sendPacket = new DatagramPacket(b, b.length, recv.getAddress(), 8888);
-            s.send(sendPacket);
-            //byte[] receiveData = new byte[1024];
-            //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            //s.receive(receivePacket);
-
         }
         //Sai do grupo
         //s.leaveGroup(group);
