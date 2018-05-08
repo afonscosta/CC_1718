@@ -1,15 +1,14 @@
 package serverreverseproxy;
 
-import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import com.sun.management.*; //daria alternativas para métodos para encontrar o cpu e ram
-import java.lang.management.*;
 import java.time.LocalTime;
 import java.util.Random;
 
-import static serverreverseproxy.Converter.*;
+import static serverreverseproxy.Converter.objectFromBytes;
+import static serverreverseproxy.Converter.serialize;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 public class AgenteUDP {
