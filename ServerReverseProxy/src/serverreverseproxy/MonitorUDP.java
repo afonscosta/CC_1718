@@ -6,8 +6,7 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 
 import static java.lang.Thread.sleep;
-import static serverreverseproxy.Converter.objectFromBytes;
-import static serverreverseproxy.Converter.serialize;
+import static serverreverseproxy.Converter.*;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 public class MonitorUDP {
