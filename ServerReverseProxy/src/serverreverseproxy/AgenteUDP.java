@@ -43,15 +43,14 @@ public class AgenteUDP {
 
             //Recebe o pedido multicast
             s.receive(recv);
+            
+            System.out.println("Received data from: " + recv.getAddress().toString() +
+                               ":"                    + recv.getPort() + 
+                               " with length: "       + recv.getLength());
 
             if (objectFromBytes(recv.getData()).getClass().getSimpleName().equals("PDU_MA")){
                 //Descodifica os bytes para PDU_MA
                 PDU_MA request = (PDU_MA) objectFromBytes(recv.getData());
-
-                System.out.println("Received data from: " + recv.getAddress().toString() +
-                        ":" + recv.getPort() + " with length: " +
-                        recv.getLength());
-
 
                 if (request != null) {
                     LocalTime reqLT = request.getTimestamp();
