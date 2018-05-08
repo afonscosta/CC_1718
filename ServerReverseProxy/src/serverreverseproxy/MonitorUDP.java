@@ -9,6 +9,8 @@ import static java.lang.Thread.sleep;
 import static serverreverseproxy.Converter.*;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
+import static java.lang.Thread.sleep;
+
 public class MonitorUDP {
 
 
@@ -53,7 +55,6 @@ public class MonitorUDP {
 
                 //Manda o pedido em multicast
                 s.send(sendDataMulticast);
-
                 /*
                 Escuta possíveis respostas em unicast.
                 MulticastSocket é uma subclasse de DatagramSocket e como tal tem a capacidade de

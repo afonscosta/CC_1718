@@ -5,3 +5,4 @@ ServerReverseProxy/.idea/
 ServerReverseProxy/ServerReverseProxy.iml
 ServerReverseProxy/out/
 
+/ServerReverseProxy/build/
