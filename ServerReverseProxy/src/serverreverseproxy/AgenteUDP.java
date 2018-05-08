@@ -16,6 +16,10 @@ public class AgenteUDP {
 
     public static void main(String args[]) throws Exception
     {
+        //Porta do Servidor HTTP associado
+        int portaHTTP = Integer.parseInt(args[0]);
+
+
         //Porta usada
         int port = 8888;
 
@@ -92,12 +96,12 @@ public class AgenteUDP {
             float cpu = (float) o.getProcessCpuLoad();
 
             //timestamp
-            LocalTime timestamp = LocalTime.now();
+            LocalTime timestamp = request.getTimestamp();
 
             //String address = new String(group.getAddress());
 
 
-            PDU_AM resp = new PDU_AM(ram, cpu, timestamp, key);
+            PDU_AM resp = new PDU_AM(portaHTTP, ram, cpu, timestamp, key);
             byte[] b = serialize(resp);
 
             //String sendData = "Resposta em unicast";
