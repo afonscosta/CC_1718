@@ -1,21 +1,24 @@
 package serverreverseproxy;
 
-import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import com.sun.management.*; //daria alternativas para métodos para encontrar o cpu e ram
-import java.lang.management.*;
 import java.time.LocalTime;
 import java.util.Random;
 
-import static serverreverseproxy.Converter.*;
+import static serverreverseproxy.Converter.objectFromBytes;
+import static serverreverseproxy.Converter.serialize;
 import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 public class AgenteUDP {
 
     public static void main(String args[]) throws Exception
     {
+        //Porta do Servidor HTTP associado
+        int portaHTTP = Integer.parseInt(args[0]);
+
+
         //Porta usada
         int port = 8888;
 
@@ -43,14 +46,14 @@ public class AgenteUDP {
 
             //Recebe o pedido multicast
             s.receive(recv);
-            
-            System.out.println("Received data from: " + recv.getAddress().toString() +
-                               ":"                    + recv.getPort() + 
-                               " with length: "       + recv.getLength());
 
             if (objectFromBytes(recv.getData()).getClass().getSimpleName().equals("PDU_MA")){
                 //Descodifica os bytes para PDU_MA
                 PDU_MA request = (PDU_MA) objectFromBytes(recv.getData());
+
+                System.out.println("Received data from: " + recv.getAddress().toString() +
+                        ":"                    + recv.getPort() +
+                        " with length: "       + recv.getLength());
 
                 if (request != null) {
                     LocalTime reqLT = request.getTimestamp();
@@ -91,14 +94,14 @@ public class AgenteUDP {
                 com.sun.management.OperatingSystemMXBean o = ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);
                 float cpu = (float) o.getProcessCpuLoad();
 
-                //timestamp
-                LocalTime timestamp = LocalTime.now();
+            //timestamp
+            LocalTime timestamp = request.getTimestamp();
 
-                //String address = new String(group.getAddress());
+            //String address = new String(group.getAddress());
 
 
-                PDU_AM resp = new PDU_AM(ram, cpu, timestamp, key);
-                byte[] b = serialize(resp);
+            PDU_AM resp = new PDU_AM(portaHTTP, ram, cpu, timestamp, key);
+            byte[] b = serialize(resp);
 
                 //String sendData = "Resposta em unicast";
                 //DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);

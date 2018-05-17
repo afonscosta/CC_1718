@@ -6,8 +6,10 @@
 package serverreverseproxy;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -21,10 +23,13 @@ public class ServerReverseProxy {
 		
 		
         try {
-            ServerSocket sSocket = new ServerSocket(12345);
+
+            HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado = new HashMap<>();
+
+            ServerSocket ssExterno = new ServerSocket(12345);
             while (true) {
-                Socket clSocket = sSocket.accept();
-                Thread t = new Thread(new ServerWorker(clSocket));
+                Socket clientSocket = ssExterno.accept();
+                Thread t = new Thread(new ServerWorker(clientSocket));
                 t.start();
             }
 
