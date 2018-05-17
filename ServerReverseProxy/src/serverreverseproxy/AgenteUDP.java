@@ -15,6 +15,10 @@ public class AgenteUDP {
 
     public static void main(String args[]) throws Exception
     {
+        //Porta do Servidor HTTP associado
+        int portaHTTP = Integer.parseInt(args[0]);
+
+
         //Porta usada
         int port = 8888;
 
@@ -42,7 +46,6 @@ public class AgenteUDP {
 
             //Recebe o pedido multicast
             s.receive(recv);
-            
 
             if (objectFromBytes(recv.getData()).getClass().getSimpleName().equals("PDU_MA")){
                 //Descodifica os bytes para PDU_MA
@@ -91,14 +94,14 @@ public class AgenteUDP {
                 com.sun.management.OperatingSystemMXBean o = ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);
                 float cpu = (float) o.getProcessCpuLoad();
 
-                //timestamp
-                LocalTime timestamp = LocalTime.now();
+            //timestamp
+            LocalTime timestamp = request.getTimestamp();
 
-                //String address = new String(group.getAddress());
+            //String address = new String(group.getAddress());
 
 
-                PDU_AM resp = new PDU_AM(ram, cpu, timestamp, key);
-                byte[] b = serialize(resp);
+            PDU_AM resp = new PDU_AM(portaHTTP, ram, cpu, timestamp, key);
+            byte[] b = serialize(resp);
 
                 //String sendData = "Resposta em unicast";
                 //DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);

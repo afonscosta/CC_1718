@@ -4,6 +4,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
+import java.time.LocalTime;
 
 import static java.lang.Thread.sleep;
 import static serverreverseproxy.Converter.*;
@@ -16,6 +17,7 @@ public class MonitorUDP {
 
     public static void main(String args[]) throws Exception
     {
+        String portaHTTPIN;
         String ramIN;
         String cpuIN;
         String timeIN;
@@ -74,12 +76,15 @@ public class MonitorUDP {
                         );
 
                         if (pduReceived != null) {
+                            portaHTTPIN = String.valueOf(pduReceived.getPortaHTTP());
                             ramIN = String.valueOf(pduReceived.getRam_usage());
                             cpuIN = String.valueOf(pduReceived.getCpu_usage());
                             timeIN = pduReceived.getTimestamp().toString();
                             hmacIN = String.valueOf(pduReceived.getHMAC_RESULT());
-                            hmac = calculateRFC2104HMAC(timeIN + ramIN + cpuIN, "key");
+                            hmac = calculateRFC2104HMAC(timeIN + ramIN + cpuIN + portaHTTPIN, "key");
                             System.out.println(
+
+                                "HTTP Server Port: " + portaHTTPIN + "\n" +
                                 "RAM: " + ramIN + "\n" +
                                 "CPU: " + cpuIN + "\n" +
                                 "Timestamp: " + timeIN + "\n" +
@@ -87,6 +92,11 @@ public class MonitorUDP {
                                 "HMAC result calculated: " + hmac + "\n" +
                                 "HMAC iguais? " + hmacIN.equals(hmac) + "\n"
                             );
+
+                            if (hmacIN.equals(hmac)) {
+                                long rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
+                                System.out.println("Round-Trip Time = " + rtt + " milliseconds.\n");
+                            }
                         }
                     }
                 }

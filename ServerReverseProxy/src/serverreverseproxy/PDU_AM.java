@@ -17,21 +17,24 @@ import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 
 
 public class PDU_AM implements Serializable {
-    
+
+    private int portaHTTP;
     private float ram_usage;
     private float cpu_usage;
     private LocalTime timestamp;
     private String HMAC_RESULT;
 
     /* CONSTRUCTOR */
-    public PDU_AM(float ram_usage, float cpu_usage, LocalTime timestamp, String key) {
+    public PDU_AM(int portaHTTP, float ram_usage, float cpu_usage, LocalTime timestamp, String key) {
+        this.portaHTTP = portaHTTP;
         this.ram_usage = ram_usage;
         this.cpu_usage = cpu_usage;
         this.timestamp = timestamp;
         try {
+            String porta = Integer.toString(this.portaHTTP);
             String ram = Float.toString(this.ram_usage);
             String cpu = Float.toString(this.cpu_usage);
-            String data = this.timestamp.toString() + ram + cpu;
+            String data = this.timestamp.toString() + ram + cpu + porta;
             this.HMAC_RESULT = calculateRFC2104HMAC(data , key);
         } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
             Logger.getLogger(PDU_MA.class.getName()).log(Level.SEVERE, null, ex);
@@ -39,6 +42,8 @@ public class PDU_AM implements Serializable {
     }
     
     /* GETTERS */
+    public int getPortaHTTP() { return portaHTTP; }
+
     public float getRam_usage() {
         return ram_usage;
     }
@@ -54,16 +59,5 @@ public class PDU_AM implements Serializable {
     public String getHMAC_RESULT() {
         return HMAC_RESULT;
     }
-    
-    /* SETTERS */
-    public void setRam_usage(float ram_usage) {
-        this.ram_usage = ram_usage;
-    }
-
-    public void setCpu_usage(float cpu_usage) {
-        this.cpu_usage = cpu_usage;
-    }
-    
-    
 
 }
