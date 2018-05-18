@@ -36,23 +36,27 @@ public class ServerWorker implements Runnable {
     }
 
     public void run() {
-      while (true){
-        System.out.println("Estou em espera!!!");
-        clientSentence = inFromClient.readLine();
-        System.out.println("Received: " + clientSentence);
+        while (true){
 
-        //Consultar a tabela de estado
+            try{
 
-        //Estabelecer a conexão TCP com o HTTP SERVER
-        try{
-          Socket clientSocket = new Socket("localhost", 80);
+                System.out.println("Estou em espera!!!");
+                clientSentence = inFromClient.readLine();
+                System.out.println("Received: " + clientSentence);
+
+                //Consultar a tabela de estado
+
+                //Estabelecer a conexão TCP com o HTTP SERVER
+
+                    Socket clientSocket = new Socket("localhost", 80);
+
+                //Ler a resposta do HTTP SERVER
+
+                //Devolver a resposta ao Cliente
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-      } catch (IOException e) {
-          ;
-      }
-        //Ler a resposta do HTTP SERVER
-
-        //Devolver a resposta ao Cliente
-        }
-      }
+    }
 }
