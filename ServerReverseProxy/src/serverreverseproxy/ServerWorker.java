@@ -22,7 +22,7 @@ public class ServerWorker implements Runnable {
     private String clientSentence;
 
     public ServerWorker(Socket socket) {
-        
+
         this.socket = socket;
 
         try {
@@ -30,25 +30,29 @@ public class ServerWorker implements Runnable {
             this.inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(socket.getOutputStream(), true);
 
-            clientSentence = inFromClient.readLine();
-            System.out.println("Received: " + clientSentence);
-
-            //Consultar a tabela de estado
-
-            //Estabelecer a conexão TCP com o HTTP SERVER
-            Socket clientSocket = new Socket("localhost", 80);
-
-            //Ler a resposta do HTTP SERVER
-
-            //Devolver a resposta ao Cliente
-
         } catch (IOException e) {
             System.out.println("Erro no establecimento da ligação.");
         }
     }
 
     public void run() {
-        
-    }
+      while (true){
+        System.out.println("Estou em espera!!!");
+        clientSentence = inFromClient.readLine();
+        System.out.println("Received: " + clientSentence);
 
+        //Consultar a tabela de estado
+
+        //Estabelecer a conexão TCP com o HTTP SERVER
+        try{
+          Socket clientSocket = new Socket("localhost", 80);
+        }
+      } catch (IOException e) {
+          ;
+      }
+        //Ler a resposta do HTTP SERVER
+
+        //Devolver a resposta ao Cliente
+        }
+      }
 }
