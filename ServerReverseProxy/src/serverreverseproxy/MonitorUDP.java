@@ -23,12 +23,13 @@ public class MonitorUDP implements Runnable {
 
     public void run()
     {
-        String portaHTTPIN;
-        String ramIN;
-        String cpuIN;
-        String timeIN;
-        String hmacIN;
-        String hmac;
+        String portaHTTPIN = "NA";
+        String ramIN = "NA";
+        String cpuIN = "NA";
+        String timeIN = "NA";
+        String hmacIN = "NA";
+        String hmac = "NA";
+        long rtt = -1;
 
         try {
             //Pacote usado para receber as respostas em unicast ao pedido multicast
@@ -100,10 +101,14 @@ public class MonitorUDP implements Runnable {
                                 );
 
                                 if (hmacIN.equals(hmac)) {
-                                    long rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
+                                    rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
                                     System.out.println("Round-Trip Time = " + rtt + " milliseconds.\n");
                                 }
                             }
+
+                            //atualização da tabela quando é recebida uma nova mensagem de estado do agente
+                            EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Float.parseFloat(ramIN), Float.parseFloat(cpuIN), rtt, 100);
+                            TabelaEstado.put(receivePacket.getAddress(), e);
                         }
                     } catch (SocketTimeoutException e) {
                         // timeout exception.
