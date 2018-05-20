@@ -16,9 +16,11 @@ import static java.lang.Thread.sleep;
 public class MonitorUDP implements Runnable {
 
     private HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
+    private HashMap<InetAddress, Integer> tabelaInatividade;
 
     public MonitorUDP(HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
         this.TabelaEstado = TabelaEstado;
+
     }
 
     public void run()
@@ -64,6 +66,12 @@ public class MonitorUDP implements Runnable {
 
                     //Manda o pedido em multicast
                     s.send(sendDataMulticast);
+
+                    //incrementa os contadores a dizer que fica a espera da resposta dos agentes
+                    for(int count : tabelaInatividade.values()){
+                        count++;
+                    }
+
                     /*
                     Escuta possíveis respostas em unicast.
                     MulticastSocket é uma subclasse de DatagramSocket e como tal tem a capacidade de
@@ -106,8 +114,19 @@ public class MonitorUDP implements Runnable {
                                 }
                             }
 
-                            //atualização da tabela quando é recebida uma nova mensagem de estado do agente
-                            EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Float.parseFloat(ramIN), Float.parseFloat(cpuIN), rtt, 100);
+                            //a mensagem que é recebida, o contador desse agente é colocado a 0
+                            if (tabelaInatividade.containsKey(Integer.parseInt(portaHTTPIN)))
+                                tabelaInatividade.put(receivePacket.getAddress(), 0);
+
+                            //quando um agente não responde a 3 pedidos de status é removido
+                            for(InetAddress adress : tabelaInatividade.keySet()){
+                                if (tabelaInatividade.get(adress) >= 3){
+                                    TabelaEstado.remove(adress);
+                                }
+                            }
+
+                            //atualização da tabela quando é recebida uma nova mensagem de estado do agente VERIFICAR O CALCULO DA BW
+                            EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Float.parseFloat(ramIN), Float.parseFloat(cpuIN), rtt, (rtt/2)/receivePacket.getLength());
                             TabelaEstado.put(receivePacket.getAddress(), e);
                         }
                     } catch (SocketTimeoutException e) {
