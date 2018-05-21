@@ -8,8 +8,16 @@ public class EntradaTabelaEstado {
     private int port;
     private float ram;
     private float cpu;
-    private LocalTime rtt;
+    private long rtt;
     private float bw;
+
+    public EntradaTabelaEstado(int port, float ram, float cpu, long rtt, float bw) {
+        this.port = port;
+        this.ram = ram;
+        this.cpu = cpu;
+        this.rtt = rtt;
+        this.bw = bw;
+    }
 
     public int getPort() {
         return port;
@@ -35,11 +43,11 @@ public class EntradaTabelaEstado {
         this.cpu = cpu;
     }
 
-    public LocalTime getRtt() {
+    public long getRtt() {
         return rtt;
     }
 
-    public void setRtt(LocalTime rtt) {
+    public void setRtt(long rtt) {
         this.rtt = rtt;
     }
 
