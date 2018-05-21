@@ -39,8 +39,8 @@ public class ServerWorker implements Runnable {
         Iterator<Map.Entry<InetAddress, EntradaTabelaEstado>> it = TabelaEstado.entrySet().iterator();
         Map.Entry<InetAddress, EntradaTabelaEstado> entry;
         InetAddress ipRes = null;
-        float minQuality = Float.MAX_VALUE;
-        float tempQuality;
+        double minQuality = Float.MAX_VALUE;
+        double tempQuality;
 
         while(it.hasNext()) {
             entry = it.next();
