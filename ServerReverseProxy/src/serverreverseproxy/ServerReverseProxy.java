@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ServerReverseProxy {
@@ -23,7 +24,7 @@ public class ServerReverseProxy {
 
         try {
 
-            HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado = new HashMap<>();
+            ConcurrentHashMap<InetAddress, EntradaTabelaEstado> TabelaEstado = new ConcurrentHashMap<>();
 
             ServerSocket ssExterno = new ServerSocket(12345);
             //incialização da thread MonitorUDP sempre que o ServerReverseProxy é iniciado

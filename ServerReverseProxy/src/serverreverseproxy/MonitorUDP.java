@@ -6,6 +6,7 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Thread.sleep;
 import static serverreverseproxy.Converter.*;
@@ -15,10 +16,10 @@ import static java.lang.Thread.sleep;
 
 public class MonitorUDP implements Runnable {
 
-    private HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
+    private ConcurrentHashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
     private HashMap<InetAddress, Integer> tabelaInatividade;
 
-    public MonitorUDP(HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
+    public MonitorUDP(ConcurrentHashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
         this.TabelaEstado = TabelaEstado;
         this.tabelaInatividade = new HashMap<>();
 
