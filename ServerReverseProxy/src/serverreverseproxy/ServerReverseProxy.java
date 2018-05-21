@@ -27,11 +27,12 @@ public class ServerReverseProxy {
 
             ServerSocket ssExterno = new ServerSocket(12345);
             //incialização da thread MonitorUDP sempre que o ServerReverseProxy é iniciado
-            //Thread m = new Thread(new MonitorUDP(TabelaEstado));
+            Thread m = new Thread(new MonitorUDP(TabelaEstado));
+            m.start();
 
             while (true) {
                 Socket clientSocket = ssExterno.accept();
-                Thread t = new Thread(new ServerWorker(clientSocket));
+                Thread t = new Thread(new ServerWorker(clientSocket, TabelaEstado));
                 t.start();
             }
 

@@ -16,7 +16,11 @@ public class AgenteUDP {
     public static void main(String args[]) throws Exception
     {
         //Porta do Servidor HTTP associado
-        int portaHTTP = Integer.parseInt(args[0]);
+        int portaHTTP;
+        if (args.length == 1)
+            portaHTTP = Integer.parseInt(args[0]);
+        else
+            portaHTTP = 80;
 
 
         //Porta usada
