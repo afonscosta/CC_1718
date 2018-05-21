@@ -6,7 +6,7 @@ javac -d . ServerReverseProxy.java MonitorUDP.java EntradaTabelaEstado.java Serv
 
 javac -d . AgenteUDP.java PDU_AM.java PDU_MA.java HMAC.java Converter.java
 
-javac -d . MonitorUDP.java PDU_AM.java PDU_MA.java HMAC.java Converter.java
+javac -d . MonitorUDP.java PDU_AM.java PDU_MA.java HMAC.java Converter.java EntradaTabelaEstado.java
 
 javac -d . PDU_AM.java PDU_MA.java HMAC.java
 

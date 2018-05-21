@@ -10,6 +10,8 @@ public class EntradaTabelaEstado {
     private float cpu;
     private double rtt;
     private double bw;
+    private float quality;
+
 
     public EntradaTabelaEstado(int port, float ram, float cpu, double rtt, double bw) {
         this.port = port;
@@ -17,6 +19,7 @@ public class EntradaTabelaEstado {
         this.cpu = cpu;
         this.rtt = rtt;
         this.bw = bw;
+        this.quality = Float.MAX_VALUE;
     }
 
     public int getPort() {
@@ -57,6 +60,18 @@ public class EntradaTabelaEstado {
 
     public void setBw(double bw) {
         this.bw = bw;
+    }
+
+    public float getQuality() {
+        return quality;
+    }
+
+    public void setQuality(float quality) {
+        this.quality = quality;
+    }
+
+    public void calcQuality(float pesoRAM, float pesoCPU, float pesoRTT, float pesoBW) {
+        this.quality = ram * pesoRAM + cpu * pesoCPU + (float)rtt * pesoRTT + (float)bw * pesoBW;
     }
 
 }

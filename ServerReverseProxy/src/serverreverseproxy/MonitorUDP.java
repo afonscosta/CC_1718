@@ -6,6 +6,7 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Thread.sleep;
@@ -16,10 +17,10 @@ import static java.lang.Thread.sleep;
 
 public class MonitorUDP implements Runnable {
 
-    private ConcurrentHashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
+    private HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
     private HashMap<InetAddress, Integer> tabelaInatividade;
 
-    public MonitorUDP(ConcurrentHashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
+    public MonitorUDP(HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
         this.TabelaEstado = TabelaEstado;
         this.tabelaInatividade = new HashMap<>();
 
@@ -85,7 +86,6 @@ public class MonitorUDP implements Runnable {
                     try {
                         while (true) {
                             s.receive(receivePacket);
-                            System.out.println("Deixa de receber");
                             PDU_AM pduReceived = (PDU_AM) objectFromBytes(receivePacket.getData());
 
                             //Recebeu uma resposta em unicast.
@@ -114,11 +114,12 @@ public class MonitorUDP implements Runnable {
                                 );
 
                                 if (hmacIN.equals(hmac)) {
-                                    rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
+                                    rtt = (double) (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
                                     System.out.println("Round-Trip Time = " + rtt + " milliseconds.\n");
 
                                     //atualização da tabela quando é recebida uma nova mensagem de estado do agente VERIFICAR O CALCULO DA BW
                                     EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Float.parseFloat(ramIN), Float.parseFloat(cpuIN), rtt, receivePacket.getLength()/(rtt/2));
+                                    e.calcQuality((float) 0.2, (float) 0.3, (float) 0.3, (float) 0.2);
                                     TabelaEstado.put(receivePacket.getAddress(), e);
 
                                     //a mensagem é recebida e é introduzido na tabelaInatividade a 0
@@ -133,10 +134,12 @@ public class MonitorUDP implements Runnable {
                 }
 
                 //quando um agente não responde a 3 pedidos de status é removido
-                for(InetAddress address : tabelaInatividade.keySet()){
-                    if (tabelaInatividade.get(address) >= 3){
-                        TabelaEstado.remove(address);
-                        tabelaInatividade.remove(address);
+                Iterator<InetAddress> it = tabelaInatividade.keySet().iterator();
+                while(it.hasNext()) {
+                    InetAddress key = it.next();
+                    if (tabelaInatividade.get(key) >= 3){
+                        TabelaEstado.remove(key);
+                        it.remove();
                     }
                 }
 
