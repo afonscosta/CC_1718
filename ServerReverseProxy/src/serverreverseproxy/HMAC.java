@@ -28,7 +28,7 @@ public class HMAC {
 	}
 
 	public static String calculateRFC2104HMAC(String data, String key)
-		throws SignatureException, NoSuchAlgorithmException, InvalidKeyException
+		throws NoSuchAlgorithmException, InvalidKeyException
 	{
 		SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
 		Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
