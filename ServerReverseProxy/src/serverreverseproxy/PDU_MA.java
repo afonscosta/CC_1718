@@ -26,7 +26,7 @@ public class PDU_MA implements Serializable {
         this.timestamp = LocalTime.now();
         try {
             this.HMAC_RESULT = calculateRFC2104HMAC(timestamp.toString(), key);
-        } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
+        } catch ( NoSuchAlgorithmException | InvalidKeyException ex) {
             Logger.getLogger(PDU_MA.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -26,6 +26,7 @@ public class ServerReverseProxy {
             HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado = new HashMap<>();
 
             ServerSocket ssExterno = new ServerSocket(12345);
+
             //incialização da thread MonitorUDP sempre que o ServerReverseProxy é iniciado
             Thread m = new Thread(new MonitorUDP(TabelaEstado));
             m.start();
