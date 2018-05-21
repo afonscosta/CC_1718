@@ -40,14 +40,4 @@ public class PDU_MA implements Serializable {
         return HMAC_RESULT;
     }
     
-    /* SETTERS */
-    public void setTimestamp(LocalTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public void setHMAC_RESULT(String HMAC_RESULT) {
-        this.HMAC_RESULT = HMAC_RESULT;
-    }
-    
-    
 }
