@@ -88,15 +88,15 @@ public class AgenteUDP {
                 long usedRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed();
                 float ram = usedRam / maxRam;*/
                 Runtime obj = Runtime.getRuntime();
-                float freeRAM = obj.freeMemory(); //System.out.println("FreeRAM = " + freeRAM);
-                float maxRAM = obj.maxMemory(); //System.out.println("MaxRAM = " + maxRAM);
-                float ram = freeRAM/maxRAM; //System.out.println("RAM = " + ram);
+                double freeRAM = obj.freeMemory(); //System.out.println("FreeRAM = " + freeRAM);
+                double maxRAM = obj.maxMemory(); //System.out.println("MaxRAM = " + maxRAM);
+                double ram = freeRAM/maxRAM; //System.out.println("RAM = " + ram);
 
                 //CPU usage
                 //java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
                 //float cpu = (float) o.getSystemLoadAverage() / o.getAvailableProcessors();
                 com.sun.management.OperatingSystemMXBean o = ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);
-                float cpu = (float) o.getProcessCpuLoad();
+                double cpu = o.getProcessCpuLoad();
 
             //timestamp
             LocalTime timestamp = request.getTimestamp();

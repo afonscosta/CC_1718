@@ -114,12 +114,12 @@ public class MonitorUDP implements Runnable {
                                 );
 
                                 if (hmacIN.equals(hmac)) {
-                                    rtt = (double) (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
+                                    rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
                                     System.out.println("Round-Trip Time = " + rtt + " milliseconds.\n");
 
                                     //atualização da tabela quando é recebida uma nova mensagem de estado do agente VERIFICAR O CALCULO DA BW
-                                    EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Float.parseFloat(ramIN), Float.parseFloat(cpuIN), rtt, receivePacket.getLength()/(rtt/2));
-                                    e.calcQuality((float) 0.2, (float) 0.3, (float) 0.3, (float) 0.2);
+                                    EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Double.parseDouble(ramIN), Double.parseDouble(cpuIN), rtt, receivePacket.getLength()/(rtt/2));
+                                    e.calcQuality((double) 0.2, (double) 0.3, (double) 0.3, (double) 0.2);
                                     TabelaEstado.put(receivePacket.getAddress(), e);
 
                                     //a mensagem é recebida e é introduzido na tabelaInatividade a 0
