@@ -6,72 +6,48 @@ import java.time.LocalTime;
 public class EntradaTabelaEstado {
 
     private int port;
-    private float ram;
-    private float cpu;
+    private double ram;
+    private double cpu;
     private double rtt;
     private double bw;
-    private float quality;
+    private double quality;
 
 
-    public EntradaTabelaEstado(int port, float ram, float cpu, double rtt, double bw) {
+    public EntradaTabelaEstado(int port, double ram, double cpu, double rtt, double bw) {
         this.port = port;
         this.ram = ram;
         this.cpu = cpu;
         this.rtt = rtt;
         this.bw = bw;
-        this.quality = Float.MAX_VALUE;
+        this.quality = Double.MAX_VALUE;
     }
 
     public int getPort() {
         return port;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public float getRam() {
+    public double getRam() {
         return ram;
     }
 
-    public void setRam(float ram) {
-        this.ram = ram;
-    }
-
-    public float getCpu() {
+    public double getCpu() {
         return cpu;
-    }
-
-    public void setCpu(float cpu) {
-        this.cpu = cpu;
     }
 
     public double getRtt() {
         return rtt;
     }
 
-    public void setRtt(double rtt) {
-        this.rtt = rtt;
-    }
-
     public double getBw() {
         return bw;
     }
 
-    public void setBw(double bw) {
-        this.bw = bw;
-    }
-
-    public float getQuality() {
+    public double getQuality() {
         return quality;
     }
 
-    public void setQuality(float quality) {
-        this.quality = quality;
-    }
-
-    public void calcQuality(float pesoRAM, float pesoCPU, float pesoRTT, float pesoBW) {
-        this.quality = ram * pesoRAM + cpu * pesoCPU + (float)rtt * pesoRTT + (float)bw * pesoBW;
+    public void calcQuality(double pesoRAM, double pesoCPU, double pesoRTT, double pesoBW) {
+        this.quality = ram * pesoRAM + cpu * pesoCPU + rtt * pesoRTT + bw * pesoBW;
     }
 
 }

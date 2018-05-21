@@ -19,21 +19,21 @@ import static serverreverseproxy.HMAC.calculateRFC2104HMAC;
 public class PDU_AM implements Serializable {
 
     private int portaHTTP;
-    private float ram_usage;
-    private float cpu_usage;
+    private double ram_usage;
+    private double cpu_usage;
     private LocalTime timestamp;
     private String HMAC_RESULT;
 
     /* CONSTRUCTOR */
-    public PDU_AM(int portaHTTP, float ram_usage, float cpu_usage, LocalTime timestamp, String key) {
+    public PDU_AM(int portaHTTP, double ram_usage, double cpu_usage, LocalTime timestamp, String key) {
         this.portaHTTP = portaHTTP;
         this.ram_usage = ram_usage;
         this.cpu_usage = cpu_usage;
         this.timestamp = timestamp;
         try {
             String porta = Integer.toString(this.portaHTTP);
-            String ram = Float.toString(this.ram_usage);
-            String cpu = Float.toString(this.cpu_usage);
+            String ram = Double.toString(this.ram_usage);
+            String cpu = Double.toString(this.cpu_usage);
             String data = this.timestamp.toString() + ram + cpu + porta;
             this.HMAC_RESULT = calculateRFC2104HMAC(data , key);
         } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
@@ -44,11 +44,11 @@ public class PDU_AM implements Serializable {
     /* GETTERS */
     public int getPortaHTTP() { return portaHTTP; }
 
-    public float getRam_usage() {
+    public double getRam_usage() {
         return ram_usage;
     }
 
-    public float getCpu_usage() {
+    public double getCpu_usage() {
         return cpu_usage;
     }
 
