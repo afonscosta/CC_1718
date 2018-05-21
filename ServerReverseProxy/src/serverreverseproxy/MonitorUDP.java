@@ -119,7 +119,7 @@ public class MonitorUDP implements Runnable {
 
                                     //atualização da tabela quando é recebida uma nova mensagem de estado do agente VERIFICAR O CALCULO DA BW
                                     EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Double.parseDouble(ramIN), Double.parseDouble(cpuIN), rtt, receivePacket.getLength()/(rtt/2));
-                                    e.calcQuality((double) 0.2, (double) 0.3, (double) 0.3, (double) 0.2);
+                                    e.calcQuality(0.2, 0.3, 0.3,0.2);
                                     TabelaEstado.put(receivePacket.getAddress(), e);
 
                                     //a mensagem é recebida e é introduzido na tabelaInatividade a 0
@@ -163,9 +163,6 @@ public class MonitorUDP implements Runnable {
 
 
                 sleep(2500);
-
-                // And when we have finished sending data close the socket
-                //                s.close();
             }
         }catch (Exception e){
             e.printStackTrace();

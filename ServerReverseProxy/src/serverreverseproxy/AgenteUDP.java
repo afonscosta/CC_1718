@@ -72,55 +72,29 @@ public class AgenteUDP {
 
                 //espera entre 0 e 10 ms para responder
                 Thread.sleep(rand.nextInt(11));
-            /*
-                Envia resposta em unicast.
 
-                Since one can send unicast packets using the same MulticastSocket
-            instance as for ones multicasts, it makes sense to mention how unicasts
-            are handled when there is more than one listener, which can only be when
-            they are all on the same machine.
-                Unicast traffic sent to the port will be received by only one of the
-            listeners with a socket bound to the port. With my test setup, the last
-            socket to bind to the port receives the unicast traffic.
-            */
+                //Envia resposta em unicast.
+
                 //RAM usage
-                /*long maxRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
-                long usedRam = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed();
-                float ram = usedRam / maxRam;*/
                 Runtime obj = Runtime.getRuntime();
-                double freeRAM = obj.freeMemory(); //System.out.println("FreeRAM = " + freeRAM);
-                double maxRAM = obj.maxMemory(); //System.out.println("MaxRAM = " + maxRAM);
-                double ram = freeRAM/maxRAM; //System.out.println("RAM = " + ram);
+                double freeRAM = obj.freeMemory();
+                double maxRAM = obj.maxMemory();
+                double ram = freeRAM/maxRAM;
 
                 //CPU usage
-                //java.lang.management.OperatingSystemMXBean o = ManagementFactory.getOperatingSystemMXBean();
-                //float cpu = (float) o.getSystemLoadAverage() / o.getAvailableProcessors();
                 com.sun.management.OperatingSystemMXBean o = ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);
                 double cpu = o.getProcessCpuLoad();
 
-            //timestamp
-            LocalTime timestamp = request.getTimestamp();
+                //timestamp
+                LocalTime timestamp = request.getTimestamp();
 
-            //String address = new String(group.getAddress());
-
-
-            PDU_AM resp = new PDU_AM(portaHTTP, ram, cpu, timestamp, key);
-            byte[] b = serialize(resp);
+                PDU_AM resp = new PDU_AM(portaHTTP, ram, cpu, timestamp, key);
+                byte[] b = serialize(resp);
 
                 //String sendData = "Resposta em unicast";
-                //DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.length(), recv.getAddress(), 8888);
-                //s.send(sendPacket);
                 DatagramPacket sendPacket = new DatagramPacket(b, b.length, recv.getAddress(), 8888);
                 s.send(sendPacket);
-                //byte[] receiveData = new byte[1024];
-                //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                //s.receive(receivePacket);
             }
         }
-        //Sai do grupo
-        //s.leaveGroup(group);
-
-        //Fecha o socket multicast
-        //  s.close();
     }
 }

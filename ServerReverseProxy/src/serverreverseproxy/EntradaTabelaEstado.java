@@ -26,48 +26,24 @@ public class EntradaTabelaEstado {
         return port;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
     public double getRam() {
         return ram;
-    }
-
-    public void setRam(double ram) {
-        this.ram = ram;
     }
 
     public double getCpu() {
         return cpu;
     }
 
-    public void setCpu(double cpu) {
-        this.cpu = cpu;
-    }
-
     public double getRtt() {
         return rtt;
-    }
-
-    public void setRtt(double rtt) {
-        this.rtt = rtt;
     }
 
     public double getBw() {
         return bw;
     }
 
-    public void setBw(double bw) {
-        this.bw = bw;
-    }
-
     public double getQuality() {
         return quality;
-    }
-
-    public void setQuality(double quality) {
-        this.quality = quality;
     }
 
     public void calcQuality(double pesoRAM, double pesoCPU, double pesoRTT, double pesoBW) {
