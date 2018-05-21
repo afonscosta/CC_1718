@@ -8,10 +8,10 @@ public class EntradaTabelaEstado {
     private int port;
     private float ram;
     private float cpu;
-    private long rtt;
-    private float bw;
+    private double rtt;
+    private double bw;
 
-    public EntradaTabelaEstado(int port, float ram, float cpu, long rtt, float bw) {
+    public EntradaTabelaEstado(int port, float ram, float cpu, double rtt, double bw) {
         this.port = port;
         this.ram = ram;
         this.cpu = cpu;
@@ -43,19 +43,19 @@ public class EntradaTabelaEstado {
         this.cpu = cpu;
     }
 
-    public long getRtt() {
+    public double getRtt() {
         return rtt;
     }
 
-    public void setRtt(long rtt) {
+    public void setRtt(double rtt) {
         this.rtt = rtt;
     }
 
-    public float getBw() {
+    public double getBw() {
         return bw;
     }
 
-    public void setBw(float bw) {
+    public void setBw(double bw) {
         this.bw = bw;
     }
 

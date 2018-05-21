@@ -20,6 +20,7 @@ public class MonitorUDP implements Runnable {
 
     public MonitorUDP(HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
         this.TabelaEstado = TabelaEstado;
+        this.tabelaInatividade = new HashMap<>();
 
     }
 
@@ -31,7 +32,7 @@ public class MonitorUDP implements Runnable {
         String timeIN = "NA";
         String hmacIN = "NA";
         String hmac = "NA";
-        long rtt = -1;
+        double rtt = Double.MAX_VALUE;
 
         try {
             //Pacote usado para receber as respostas em unicast ao pedido multicast
@@ -68,9 +69,11 @@ public class MonitorUDP implements Runnable {
                     s.send(sendDataMulticast);
 
                     //incrementa os contadores a dizer que fica a espera da resposta dos agentes
-                    for(int count : tabelaInatividade.values()){
-                        count++;
+                    for(InetAddress address : tabelaInatividade.keySet()) {
+                        int count = tabelaInatividade.get(address);
+                        tabelaInatividade.put(address, count + 1);
                     }
+
 
                     /*
                     Escuta possíveis respostas em unicast.
@@ -81,6 +84,7 @@ public class MonitorUDP implements Runnable {
                     try {
                         while (true) {
                             s.receive(receivePacket);
+                            System.out.println("Deixa de receber");
                             PDU_AM pduReceived = (PDU_AM) objectFromBytes(receivePacket.getData());
 
                             //Recebeu uma resposta em unicast.
@@ -111,23 +115,15 @@ public class MonitorUDP implements Runnable {
                                 if (hmacIN.equals(hmac)) {
                                     rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
                                     System.out.println("Round-Trip Time = " + rtt + " milliseconds.\n");
+
+                                    //atualização da tabela quando é recebida uma nova mensagem de estado do agente VERIFICAR O CALCULO DA BW
+                                    EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Float.parseFloat(ramIN), Float.parseFloat(cpuIN), rtt, receivePacket.getLength()/(rtt/2));
+                                    TabelaEstado.put(receivePacket.getAddress(), e);
+
+                                    //a mensagem é recebida e é introduzido na tabelaInatividade a 0
+                                    tabelaInatividade.put(receivePacket.getAddress(), 0);
                                 }
                             }
-
-                            //a mensagem que é recebida, o contador desse agente é colocado a 0
-                            if (tabelaInatividade.containsKey(Integer.parseInt(portaHTTPIN)))
-                                tabelaInatividade.put(receivePacket.getAddress(), 0);
-
-                            //quando um agente não responde a 3 pedidos de status é removido
-                            for(InetAddress adress : tabelaInatividade.keySet()){
-                                if (tabelaInatividade.get(adress) >= 3){
-                                    TabelaEstado.remove(adress);
-                                }
-                            }
-
-                            //atualização da tabela quando é recebida uma nova mensagem de estado do agente VERIFICAR O CALCULO DA BW
-                            EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Float.parseFloat(ramIN), Float.parseFloat(cpuIN), rtt, (rtt/2)/receivePacket.getLength());
-                            TabelaEstado.put(receivePacket.getAddress(), e);
                         }
                     } catch (SocketTimeoutException e) {
                         // timeout exception.
@@ -135,7 +131,34 @@ public class MonitorUDP implements Runnable {
                     }
                 }
 
-                sleep(5000);
+                //quando um agente não responde a 3 pedidos de status é removido
+                for(InetAddress address : tabelaInatividade.keySet()){
+                    if (tabelaInatividade.get(address) >= 3){
+                        TabelaEstado.remove(address);
+                        tabelaInatividade.remove(address);
+                    }
+                }
+
+                System.out.println("===== TABELA DE INATIVIDADE =====");
+                for(InetAddress address : tabelaInatividade.keySet()){
+                    System.out.println("Address: " + address + " -> Count: " + tabelaInatividade.get(address));
+                }
+                System.out.println("=================================\n");
+
+
+                System.out.println("======= TABELA DE ESTADO =======");
+                for(InetAddress address : TabelaEstado.keySet()){
+                    System.out.println("Address: " + address +
+                                     " | Port: " + TabelaEstado.get(address).getPort() +
+                                     " | RAM: "  + TabelaEstado.get(address).getRam() +
+                                     " | CPU: "  + TabelaEstado.get(address).getCpu() +
+                                     " | RTT: "  + TabelaEstado.get(address).getRtt() +
+                                     " | BW: "   + TabelaEstado.get(address).getBw());
+                }
+                System.out.println("================================\n");
+
+
+                sleep(2500);
 
                 // And when we have finished sending data close the socket
                 //                s.close();
