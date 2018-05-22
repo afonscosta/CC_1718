@@ -6,8 +6,10 @@
 package serverreverseproxy;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,6 +26,7 @@ public class ServerWorker implements Runnable {
     public ServerWorker(Socket socketExterno, HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
 
         this.TabelaEstado = TabelaEstado;
+        System.out.println("IP do servidor escolhido: ");
 
         try {
 
@@ -53,12 +56,40 @@ public class ServerWorker implements Runnable {
         return ipRes;
     }
 
+    private static String sendGET(String clientSentence) throws IOException {
+        URL obj = new URL(clientSentence);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("GET");
+//        con.setRequestProperty("User-Agent", USER_AGENT);
+        int responseCode = con.getResponseCode();
+        System.out.println("GET Response Code :: " + responseCode);
+        if (responseCode == HttpURLConnection.HTTP_OK) { // success
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // print result
+            return response.toString();
+        } else {
+            System.out.println("GET request not worked");
+        }
+        return "";
+
+    }
+
     public void run() {
 
         String clientSentence;
         String serverSentence;
 
-        while (true){
+
+//        while (true){
 
             try{
 
@@ -71,17 +102,20 @@ public class ServerWorker implements Runnable {
                 System.out.println("IP do servidor escolhido: " + ip);
 
                 //Estabelecer a conexão TCP com o HTTP SERVER
-                Socket socketInterno = new Socket(ip, TabelaEstado.get(ip).getPort());
+//                Socket socketInterno = new Socket(ip, TabelaEstado.get(ip).getPort());
+
+
+                serverSentence = sendGET(clientSentence);
 
                 //Inicializa os meios de comunicação com o HTTP SERVER
-                this.inFromServer = new BufferedReader(new InputStreamReader(socketInterno.getInputStream()));
-                this.outToServer = new DataOutputStream(socketInterno.getOutputStream());
+//                this.inFromServer = new BufferedReader(new InputStreamReader(socketInterno.getInputStream()));
+//                this.outToServer = new DataOutputStream(socketInterno.getOutputStream());
 
                 //Realizar pedido ao HTTP SERVER
-                outToServer.writeBytes(clientSentence);
+//                outToServer.writeBytes(clientSentence);
 
                 //Ler a resposta do HTTP SERVER
-                serverSentence = inFromServer.readLine();
+//                serverSentence = inFromServer.readLine();
 
                 //Devolver a resposta ao Cliente
                 outToClient.writeBytes(serverSentence);
@@ -89,6 +123,6 @@ public class ServerWorker implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+//        }
     }
 }
