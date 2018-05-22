@@ -74,6 +74,7 @@ public class MonitorUDP implements Runnable {
                     for(InetAddress address : tabelaInatividade.keySet()) {
                         int count = tabelaInatividade.get(address);
                         tabelaInatividade.put(address, count + 1);
+			    TabelaEstado.get(address).setStatus("down");
                     }
 
 
@@ -90,7 +91,7 @@ public class MonitorUDP implements Runnable {
 
                             //Recebeu uma resposta em unicast.
                             System.out.println(
-                                    "Received data from: " + receivePacket.getAddress().toString() +
+                                    "AGENTE -> MONITOR: Received data from: " + receivePacket.getAddress().toString() +
                                             ":" + receivePacket.getPort() + " with length: " +
                                             receivePacket.getLength()
                             );
@@ -102,24 +103,24 @@ public class MonitorUDP implements Runnable {
                                 timeIN = pduReceived.getTimestamp().toString();
                                 hmacIN = String.valueOf(pduReceived.getHMAC_RESULT());
                                 hmac = calculateRFC2104HMAC(timeIN + ramIN + cpuIN + portaHTTPIN, "key");
-                                System.out.println(
+                                //System.out.println(
 
-                                        "HTTP Server Port: " + portaHTTPIN + "\n" +
-                                                "RAM: " + ramIN + "\n" +
-                                                "CPU: " + cpuIN + "\n" +
-                                                "Timestamp: " + timeIN + "\n" +
-                                                "HMAC result received: " + hmacIN + "\n" +
-                                                "HMAC result calculated: " + hmac + "\n" +
-                                                "HMAC iguais? " + hmacIN.equals(hmac) + "\n"
-                                );
+                                 //       "HTTP Server Port: " + portaHTTPIN + "\n" +
+                                  //              "RAM: " + ramIN + "\n" +
+                                   //             "CPU: " + cpuIN + "\n" +
+                                    //            "Timestamp: " + timeIN + "\n" +
+                                     //           "HMAC result received: " + hmacIN + "\n" +
+                                      //          "HMAC result calculated: " + hmac + "\n" +
+                                       //         "HMAC iguais? " + hmacIN.equals(hmac) + "\n"
+                                //);
 
                                 if (hmacIN.equals(hmac)) {
                                     rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
                                     System.out.println("Round-Trip Time = " + rtt + " milliseconds.\n");
 
                                     //atualização da tabela quando é recebida uma nova mensagem de estado do agente VERIFICAR O CALCULO DA BW
-                                    EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Double.parseDouble(ramIN), Double.parseDouble(cpuIN), rtt, receivePacket.getLength()/(rtt/2));
-                                    e.calcQuality(0.2, 0.3, 0.3,0.2);
+                                    EntradaTabelaEstado e = new EntradaTabelaEstado(Integer.parseInt(portaHTTPIN), Double.parseDouble(ramIN), Double.parseDouble(cpuIN), rtt, receivePacket.getLength()/(rtt/2), "ativo");
+                                    e.calcQuality(0.05, 0.05, 0.45,0.45);
                                     TabelaEstado.put(receivePacket.getAddress(), e);
 
                                     //a mensagem é recebida e é introduzido na tabelaInatividade a 0
@@ -145,7 +146,7 @@ public class MonitorUDP implements Runnable {
 
                 System.out.println("===== TABELA DE INATIVIDADE =====");
                 for(InetAddress address : tabelaInatividade.keySet()){
-                    System.out.println("Address: " + address + " -> Count: " + tabelaInatividade.get(address));
+                    System.out.println("Address: " + address + " -> Count: " + tabelaInatividade.get(address) + " -> Status: " + TabelaEstado.get(address).getStatus());
                 }
                 System.out.println("=================================\n");
 
@@ -157,12 +158,13 @@ public class MonitorUDP implements Runnable {
                                      " | RAM: "  + TabelaEstado.get(address).getRam() +
                                      " | CPU: "  + TabelaEstado.get(address).getCpu() +
                                      " | RTT: "  + TabelaEstado.get(address).getRtt() +
-                                     " | BW: "   + TabelaEstado.get(address).getBw());
+                                     " | BW: "   + TabelaEstado.get(address).getBw() +
+                                     " | STATUS: " + TabelaEstado.get(address).getStatus());
                 }
                 System.out.println("================================\n");
 
 
-                sleep(2500);
+                sleep(5000);
             }
         }catch (Exception e){
             e.printStackTrace();

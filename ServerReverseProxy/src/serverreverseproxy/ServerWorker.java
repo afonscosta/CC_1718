@@ -60,7 +60,7 @@ public class ServerWorker implements Runnable {
         String clientSentence;
         String serverSentence;
 
-        while (true){
+        //while (true){
 
             try{
 
@@ -68,33 +68,39 @@ public class ServerWorker implements Runnable {
                 InetAddress ip = calcMelhorServidor();
 
                 System.out.println("IP do servidor escolhido: " + ip);
+		
+		if (TabelaEstado.get(ip).getStatus().equals("ativo")) {
 
-                //Estabelecer a conexão TCP com o HTTP SERVER
-                Socket socketInterno = new Socket(ip, TabelaEstado.get(ip).getPort());
+			//Estabelecer a conexão TCP com o HTTP SERVER
+			Socket socketInterno = new Socket(ip, TabelaEstado.get(ip).getPort());
 
-                //Inicializa os meios de comunicação com o HTTP SERVER
-                this.inFromServer = new BufferedReader(new InputStreamReader(socketInterno.getInputStream()));
-                this.outToServer = new PrintWriter(socketInterno.getOutputStream(), true);
+			//Inicializa os meios de comunicação com o HTTP SERVER
+			this.inFromServer = new BufferedReader(new InputStreamReader(socketInterno.getInputStream()));
+			this.outToServer = new PrintWriter(socketInterno.getOutputStream(), true);
 
-                Thread t1 = new Thread(new RequestIntern(socketInterno, inFromClient, outToServer));
-                t1.start();
+			Thread t1 = new Thread(new RequestIntern(socketInterno, inFromClient, outToServer));
+			t1.start();
 
-                Thread t = new Thread(new CommunicationIntern(socketInterno, inFromServer, outToClient));
-                t.start();
+			Thread t = new Thread(new CommunicationIntern(socketInterno, inFromServer, outToClient));
+			t.start();
 
-                //Realizar pedido ao HTTP SERVER
-		t1.wait();
-		t.wait();
+			//Realizar pedido ao HTTP SERVER
+			t1.join();
+			t.join();
 
+			System.out.println();
 
-                //Devolver a resposta ao Cliente
-		socketExterno.close();
+			socketInterno.close();
+
+			//Devolver a resposta ao Cliente
+			socketExterno.close();
+		}
 
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        //}
     }
 }

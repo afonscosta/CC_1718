@@ -24,7 +24,7 @@ public class RequestIntern implements Runnable {
 
             }
 
-            socketInterno.close();
+    //        socketInterno.close();
 
         } catch(IOException e) {
 
