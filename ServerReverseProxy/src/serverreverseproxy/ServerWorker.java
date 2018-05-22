@@ -62,9 +62,6 @@ public class ServerWorker implements Runnable {
 
             try{
 
-                clientSentence = inFromClient.readLine();
-//                System.out.println("Received: " + clientSentence);
-
                 //Consultar a tabela de estado
                 InetAddress ip = calcMelhorServidor();
 

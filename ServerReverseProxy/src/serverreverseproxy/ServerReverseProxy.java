@@ -35,6 +35,7 @@ public class ServerReverseProxy {
                 Socket clientSocket = ssExterno.accept();
                 Thread t = new Thread(new ServerWorker(clientSocket, TabelaEstado));
                 t.start();
+                clientSocket.close();
             }
 
         } catch (IOException e) {

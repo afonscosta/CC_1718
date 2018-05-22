@@ -9,11 +9,13 @@ public class CommunicationIntern implements Runnable {
 
     private BufferedReader inFromServer;
     private PrintWriter outToClient;
+    private Socket socketInterno;
 
     public CommunicationIntern(Socket socketInterno, BufferedReader inFromServer, PrintWriter outToClient) {
 
         this.inFromServer = inFromServer;
         this.outToClient = outToClient;
+        this.socketInterno = socketInterno;
 
     }
 
@@ -27,6 +29,8 @@ public class CommunicationIntern implements Runnable {
                 outToClient.println(serverSentence);
 
             }
+
+            socketInterno.close();
         } catch(IOException e) {
 
         }

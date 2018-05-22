@@ -9,10 +9,12 @@ public class RequestIntern implements Runnable {
 
     private BufferedReader inFromClient;
     private PrintWriter outToServer;
+    private Socket socketInterno;
 
     public RequestIntern(Socket socketInterno, BufferedReader inFromClient, PrintWriter outToServer) {
         this.inFromClient = inFromClient;
         this.outToServer = outToServer;
+        this.socketInterno = socketInterno;
     }
     public void run() {
         String clientSentence;
@@ -21,6 +23,9 @@ public class RequestIntern implements Runnable {
                 outToServer.println(clientSentence);
 
             }
+
+            socketInterno.close();
+
         } catch(IOException e) {
 
         }
