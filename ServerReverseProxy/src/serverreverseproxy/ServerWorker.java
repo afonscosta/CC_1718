@@ -77,14 +77,13 @@ public class ServerWorker implements Runnable {
                 this.inFromServer = new BufferedReader(new InputStreamReader(socketInterno.getInputStream()));
                 this.outToServer = new PrintWriter(socketInterno.getOutputStream(), true);
 
+                Thread t1 = new Thread(new RequestIntern(socketInterno, inFromClient, outToServer));
+                t1.start();
+
+                Thread t = new Thread(new CommunicationIntern(socketInterno, inFromServer, outToClient));
+                t.start();
+
                 //Realizar pedido ao HTTP SERVER
-                outToServer.println(clientSentence);
-
-                //Ler a resposta do HTTP SERVER
-                while((serverSentence = inFromServer.readLine()) != null) {
-                    outToClient.println(serverSentence);
-
-                }
 
                 //Devolver a resposta ao Cliente
 
