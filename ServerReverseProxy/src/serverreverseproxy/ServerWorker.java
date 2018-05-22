@@ -16,9 +16,9 @@ import java.util.Map;
 public class ServerWorker implements Runnable {
 
     private BufferedReader inFromClient;
-    private DataOutputStream outToClient;
+    private PrintWriter outToClient;
     private BufferedReader inFromServer;
-    private DataOutputStream outToServer;
+    private PrintWriter outToServer;
     private HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
 
     public ServerWorker(Socket socketExterno, HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
@@ -28,7 +28,7 @@ public class ServerWorker implements Runnable {
         try {
 
             this.inFromClient = new BufferedReader(new InputStreamReader(socketExterno.getInputStream()));
-            this.outToClient = new DataOutputStream(socketExterno.getOutputStream());
+            this.outToClient = new PrintWriter(socketExterno.getOutputStream(), true);
 
         } catch (IOException e) {
             System.out.println("Erro no establecimento da ligação.");
@@ -75,16 +75,18 @@ public class ServerWorker implements Runnable {
 
                 //Inicializa os meios de comunicação com o HTTP SERVER
                 this.inFromServer = new BufferedReader(new InputStreamReader(socketInterno.getInputStream()));
-                this.outToServer = new DataOutputStream(socketInterno.getOutputStream());
+                this.outToServer = new PrintWriter(socketInterno.getOutputStream(), true);
 
                 //Realizar pedido ao HTTP SERVER
-                outToServer.writeBytes(clientSentence);
+                outToServer.println(clientSentence);
 
                 //Ler a resposta do HTTP SERVER
-                serverSentence = inFromServer.readLine();
+                while((serverSentence = inFromServer.readLine()) != null) {
+                    outToClient.println(serverSentence);
+
+                }
 
                 //Devolver a resposta ao Cliente
-                outToClient.writeBytes(serverSentence);
 
             } catch (IOException e) {
                 e.printStackTrace();
