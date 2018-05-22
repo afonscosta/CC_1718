@@ -30,7 +30,6 @@ public class CommunicationIntern implements Runnable {
 
             }
 
-            socketInterno.close();
         } catch(IOException e) {
 
         }

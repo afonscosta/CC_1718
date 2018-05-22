@@ -20,10 +20,12 @@ public class ServerWorker implements Runnable {
     private BufferedReader inFromServer;
     private PrintWriter outToServer;
     private HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
+    private Socket socketExterno;
 
     public ServerWorker(Socket socketExterno, HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
 
         this.TabelaEstado = TabelaEstado;
+	this.socketExterno = socketExterno;
 
         try {
 
@@ -81,10 +83,16 @@ public class ServerWorker implements Runnable {
                 t.start();
 
                 //Realizar pedido ao HTTP SERVER
+		t1.wait();
+		t.wait();
+
 
                 //Devolver a resposta ao Cliente
+		socketExterno.close();
 
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
