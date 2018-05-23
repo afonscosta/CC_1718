@@ -36,7 +36,7 @@ public class PDU_AM implements Serializable {
             String cpu = Double.toString(this.cpu_usage);
             String data = this.timestamp.toString() + ram + cpu + porta;
             this.HMAC_RESULT = calculateRFC2104HMAC(data , key);
-        } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
+        } catch ( NoSuchAlgorithmException | InvalidKeyException ex) {
             Logger.getLogger(PDU_MA.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

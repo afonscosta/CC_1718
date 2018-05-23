@@ -16,19 +16,21 @@ import java.util.Map;
 public class ServerWorker implements Runnable {
 
     private BufferedReader inFromClient;
-    private DataOutputStream outToClient;
+    private PrintWriter outToClient;
     private BufferedReader inFromServer;
-    private DataOutputStream outToServer;
+    private PrintWriter outToServer;
     private HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado;
+    private Socket socketExterno;
 
     public ServerWorker(Socket socketExterno, HashMap<InetAddress, EntradaTabelaEstado> TabelaEstado) {
 
         this.TabelaEstado = TabelaEstado;
+	this.socketExterno = socketExterno;
 
         try {
 
             this.inFromClient = new BufferedReader(new InputStreamReader(socketExterno.getInputStream()));
-            this.outToClient = new DataOutputStream(socketExterno.getOutputStream());
+            this.outToClient = new PrintWriter(socketExterno.getOutputStream(), true);
 
         } catch (IOException e) {
             System.out.println("Erro no establecimento da ligação.");
@@ -58,37 +60,43 @@ public class ServerWorker implements Runnable {
         String clientSentence;
         String serverSentence;
 
-        while (true){
+        try{
 
-            try{
+            //Consultar a tabela de estado
+            InetAddress ip = calcMelhorServidor();
 
-                clientSentence = inFromClient.readLine();
-//                System.out.println("Received: " + clientSentence);
-
-                //Consultar a tabela de estado
-                InetAddress ip = calcMelhorServidor();
-
-                System.out.println("IP do servidor escolhido: " + ip);
+            System.out.println("IP do servidor escolhido: " + ip);
+		
+            if (TabelaEstado.get(ip).getStatus().equals("ativo")) {
 
                 //Estabelecer a conexão TCP com o HTTP SERVER
                 Socket socketInterno = new Socket(ip, TabelaEstado.get(ip).getPort());
 
                 //Inicializa os meios de comunicação com o HTTP SERVER
                 this.inFromServer = new BufferedReader(new InputStreamReader(socketInterno.getInputStream()));
-                this.outToServer = new DataOutputStream(socketInterno.getOutputStream());
+                this.outToServer = new PrintWriter(socketInterno.getOutputStream(), true);
+
+                Thread t1 = new Thread(new RequestIntern(socketInterno, inFromClient, outToServer));
+                t1.start();
+
+                Thread t = new Thread(new CommunicationIntern(socketInterno, inFromServer, outToClient));
+                t.start();
 
                 //Realizar pedido ao HTTP SERVER
-                outToServer.writeBytes(clientSentence);
+                t1.join();
+                t.join();
 
-                //Ler a resposta do HTTP SERVER
-                serverSentence = inFromServer.readLine();
+                System.out.println();
+
+                socketInterno.close();
 
                 //Devolver a resposta ao Cliente
-                outToClient.writeBytes(serverSentence);
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                socketExterno.close();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
