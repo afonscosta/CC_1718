@@ -103,16 +103,6 @@ public class MonitorUDP implements Runnable {
                                 timeIN = pduReceived.getTimestamp().toString();
                                 hmacIN = String.valueOf(pduReceived.getHMAC_RESULT());
                                 hmac = calculateRFC2104HMAC(timeIN + ramIN + cpuIN + portaHTTPIN, "key");
-                                //System.out.println(
-
-                                 //       "HTTP Server Port: " + portaHTTPIN + "\n" +
-                                  //              "RAM: " + ramIN + "\n" +
-                                   //             "CPU: " + cpuIN + "\n" +
-                                    //            "Timestamp: " + timeIN + "\n" +
-                                     //           "HMAC result received: " + hmacIN + "\n" +
-                                      //          "HMAC result calculated: " + hmac + "\n" +
-                                       //         "HMAC iguais? " + hmacIN.equals(hmac) + "\n"
-                                //);
 
                                 if (hmacIN.equals(hmac)) {
                                     rtt = (LocalTime.now().toNanoOfDay() - pduReceived.getTimestamp().toNanoOfDay()) / 1000000;
